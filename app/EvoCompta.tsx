@@ -191,94 +191,147 @@ function PublicSite({ onOpen }: { onOpen: (view: View) => void }) {
       <header className="marketing-nav">
         <Logo />
         <nav className={mobile ? "public-links open" : "public-links"}>
-          <a href="#services">Services</a>
-          <a href="#industries">Industries</a>
-          <a href="#platform">Platform</a>
+          <a href="#platform">Platform <ChevronDown size={12}/></a>
+          <a href="#operations">Solutions <ChevronDown size={12}/></a>
+          <a href="#industries">Roles</a>
+          <a href="#services">Capabilities</a>
           <a href="#pricing">Pricing</a>
-          <a href="#about">About</a>
         </nav>
         <div className="nav-actions">
-          <button className="text-button desktop-only" onClick={() => onOpen("login")}>Client portal</button>
-          <button className="button primary desktop-only" onClick={() => onOpen("login")}>Book consultation <ArrowRight size={15} /></button>
+          <button className="text-button desktop-only" onClick={() => onOpen("login")}>Sign in</button>
+          <button className="button primary desktop-only" onClick={() => onOpen("login")}>Request a demo <ArrowRight size={15} /></button>
           <button className="icon-button mobile-only" onClick={() => setMobile(!mobile)} aria-label="Open menu"><Menu size={20} /></button>
         </div>
       </header>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow"><Sparkles size={14} /> The operating system for modern accounting firms</div>
-          <h1>Clarity across every client, deadline, and decision.</h1>
-          <p>EvoCompta brings accounting production, tax, payroll, documents and client collaboration into one intelligent workspace—built for firms that refuse to run on spreadsheets.</p>
-          <div className="hero-actions">
-            <button className="button primary large" onClick={() => onOpen("login")}>Book a consultation <ArrowRight size={17} /></button>
-            <button className="button secondary large" onClick={() => onOpen("app")}>Explore the workspace</button>
+      <section className="platform-hero" id="platform">
+        <div className="hero-orbit orbit-one"/><div className="hero-orbit orbit-two"/>
+        <div className="hero-grid">
+          <div className="platform-copy">
+            <div className="platform-badge"><span>NEW</span><Sparkles size={13}/> Evo Intelligence now monitors every engagement</div>
+            <h1>Run the firm.<br/><em>Not the chaos.</em></h1>
+            <p>The complete operating platform for accounting firms—connecting every company, obligation, document, workflow, specialist and client in one real-time system.</p>
+            <div className="hero-actions">
+              <button className="button primary large" onClick={() => onOpen("app")}>Explore the platform <ArrowRight size={17} /></button>
+              <button className="button dark-secondary large" onClick={() => onOpen("login")}><CalendarDays size={16}/> Book a tailored demo</button>
+            </div>
+            <div className="platform-proof">
+              <div><b>248</b><span>companies<br/>orchestrated</span></div>
+              <div><b>98.7%</b><span>deadlines<br/>met on time</span></div>
+              <div><b>31h</b><span>saved per<br/>accountant / month</span></div>
+            </div>
           </div>
-          <div className="trust-row">
-            <span><CheckCircle2 size={15} /> Algerian compliance-ready</span>
-            <span><CheckCircle2 size={15} /> Enterprise-grade controls</span>
-            <span><CheckCircle2 size={15} /> Setup in days, not months</span>
+
+          <div className="platform-stage">
+            <div className="stage-chrome">
+              <span/><span/><span/><em>cabinet-aa.evocompta.com</em>
+              <div><ShieldCheck size={11}/> Secure workspace</div>
+            </div>
+            <div className="stage-shell">
+              <aside className="stage-sidebar">
+                <Logo compact/>
+                <div className="stage-firm">AA</div>
+                {[LayoutDashboard, CheckCircle2, Building2, Files, BookOpen, WalletCards, ShieldCheck, UsersRound, CalendarDays, TrendingUp].map((Icon, index) => (
+                  <span key={index} className={index === 0 ? "active" : ""}><Icon size={14}/>{index === 1 && <i>8</i>}</span>
+                ))}
+                <span className="stage-avatar">AB</span>
+              </aside>
+              <div className="stage-content">
+                <div className="stage-top">
+                  <div><small>FRIDAY, 24 JULY</small><b>Good morning, Amine.</b></div>
+                  <div className="stage-search"><Search size={12}/> Search everything <kbd>⌘K</kbd></div>
+                  <span><Bell size={14}/><i/></span>
+                </div>
+                <div className="stage-title"><div><b>Your firm at a glance</b><small>42 assigned companies · May 2026</small></div><button><Plus size={12}/> New task</button></div>
+                <div className="stage-kpis">
+                  <div><span><Clock3 size={13}/> DUE TODAY</span><b>24</b><em>8 high priority</em></div>
+                  <div><span><Gauge size={13}/> PORTFOLIO HEALTH</span><b>91%</b><em className="good">↑ 4.2%</em></div>
+                  <div><span><MessageSquareText size={13}/> CLIENT WAITING</span><b>17</b><em>3 overdue</em></div>
+                  <div><span><Banknote size={13}/> VALUE PROCESSED</span><b>4.8M</b><em>DZD · this month</em></div>
+                </div>
+                <div className="stage-dashboard">
+                  <div className="stage-card stage-queue">
+                    <div className="stage-card-head"><div><b>Priority queue</b><small>Ordered by deadline & risk</small></div><button>View all <ArrowRight size={11}/></button></div>
+                    {tasks.slice(0,4).map((task, i) => <div className="stage-task" key={task.task}><span className={`stage-check sc-${i}`}>{i === 3 && <Check size={9}/>}</span><div><b>{task.task}</b><small>{task.company}</small></div><em>{task.type}</em><i>{task.due.split(" · ")[0]}</i><span className="stage-owner">{i === 0 ? "AB" : ["NA","ML","YK"][i-1]}</span></div>)}
+                  </div>
+                  <div className="stage-card stage-risk">
+                    <div className="stage-card-head"><div><b>Compliance radar</b><small>Next 7 days</small></div><ShieldCheck size={14}/></div>
+                    <div className="radar-date"><span><b>26</b><small>JUL</small></span><div><b>G50 declarations</b><small>12 companies · 4 pending</small></div></div>
+                    <div className="radar-progress"><span style={{width:"67%"}}/><i>67%</i></div>
+                    <div className="radar-date"><span className="violet"><b>29</b><small>JUL</small></span><div><b>CNAS payroll filing</b><small>8 companies · 2 pending</small></div></div>
+                    <div className="stage-ai"><Sparkles size={13}/><p><b>3 filings are at risk.</b><br/>Reassigning 6 tasks protects every deadline.</p><ArrowRight size={12}/></div>
+                  </div>
+                  <div className="stage-card stage-portfolio">
+                    <div className="stage-card-head"><div><b>Company production</b><small>May accounting period</small></div><button>248 companies <ChevronDown size={11}/></button></div>
+                    {companyRows.slice(0,3).map((company) => <div className="stage-company" key={company.code}><span>{company.name.split(" ")[1]?.slice(0,2)}</span><div><b>{company.name}</b><small>{company.code}</small></div><div className="stage-bar"><span style={{width:`${company.progress}%`}}/></div><em>{company.progress}%</em><i className={company.status.toLowerCase().replace(" ","-")}>{company.status}</i></div>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="stage-float float-approval"><span><FileCheck2 size={16}/></span><div><small>APPROVAL COMPLETE</small><b>VAT declaration · SARL Atlas</b></div><CheckCircle2 size={17}/></div>
+            <div className="stage-float float-ai"><Sparkles size={15}/><div><small>EVO INTELLIGENCE</small><b>47 documents classified</b><em>96.2% confidence</em></div></div>
           </div>
         </div>
-        <div className="hero-product" id="platform">
-          <div className="product-glow" />
-          <div className="floating-card float-a">
-            <span className="mini-icon orange"><FileCheck2 size={15} /></span>
-            <div><b>VAT approved</b><small>SARL Atlas · just now</small></div>
-            <Check size={15} />
-          </div>
-          <div className="floating-card float-b">
-            <span className="mini-icon green"><Sparkles size={15} /></span>
-            <div><b>47 documents classified</b><small>96.2% average confidence</small></div>
-          </div>
-          <div className="app-preview">
-            <div className="preview-sidebar">
-              <Logo compact />
-              {[LayoutDashboard, CheckCircle2, Building2, Files, BookOpen, WalletCards].map((Icon, index) => (
-                <span key={index} className={index === 0 ? "active" : ""}><Icon size={15} /></span>
-              ))}
-            </div>
-            <div className="preview-main">
-              <div className="preview-top"><div><small>Friday, 24 July</small><b>Good morning, Amine.</b></div><span><Search size={13} /> Search… <kbd>⌘K</kbd></span></div>
-              <div className="preview-stats">
-                <div><small>Due today</small><b>24</b><em>8 urgent</em></div>
-                <div><small>Portfolio health</small><b>91%</b><em className="good">+4.2%</em></div>
-                <div><small>Awaiting clients</small><b>17</b><em>3 overdue</em></div>
-              </div>
-              <div className="preview-grid">
-                <div className="preview-panel">
-                  <div className="panel-head"><b>Priority queue</b><small>View all</small></div>
-                  {tasks.slice(0, 3).map((task, i) => (
-                    <div className="preview-task" key={task.task}><span className={`task-dot d${i}`} /><div><b>{task.task}</b><small>{task.company}</small></div><em>{task.due.split(" · ")[0]}</em></div>
-                  ))}
-                </div>
-                <div className="preview-panel deadline-panel">
-                  <div className="panel-head"><b>Next deadlines</b><small>July</small></div>
-                  <div className="deadline-date"><b>26</b><span>JUL<br/><small>Sunday</small></span></div>
-                  <p>G50 declarations</p><small>12 companies · 4 pending</small>
-                  <div className="mini-progress"><span /></div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="platform-marquee">
+          <span>ONE CONNECTED PLATFORM</span>
+          {[["01","Work OS"],["02","Companies"],["03","Documents + OCR"],["04","Accounting"],["05","Payroll"],["06","Tax + Compliance"],["07","Client CRM"],["08","Firm Intelligence"]].map(([n,label]) => <div key={label}><small>{n}</small>{label}</div>)}
         </div>
       </section>
 
-      <section className="logo-strip">
-        <p>Trusted by forward-thinking accounting teams</p>
+      <section className="enterprise-strip">
+        <p>Built for firms managing complexity at scale</p>
         <div><span>MAZARS</span><span>EXPERTA</span><span>FIDUCIA</span><span>ACCOUNTA</span><span>NORTHSTAR</span></div>
+        <em><ShieldCheck size={14}/> SOC-ready controls</em>
       </section>
 
-      <section className="stats-band">
-        <div><b>420+</b><span>companies managed</span></div>
-        <div><b>98.7%</b><span>deadlines met on time</span></div>
-        <div><b>31 hrs</b><span>saved per accountant / month</span></div>
-        <div><b>14 yrs</b><span>of domain expertise</span></div>
+      <section className="platform-story" id="operations">
+        <div className="story-heading">
+          <span className="section-label">Beyond practice management</span>
+          <h2>One operating layer across the entire firm.</h2>
+          <p>EvoCompta does more than store work. It understands the relationship between a company, its obligations, the evidence required, the people responsible and the client waiting on the outcome.</p>
+        </div>
+        <div className="operating-map">
+          <div className="map-rail">
+            <small>LIVE ENGAGEMENT</small>
+            <b>SARL Atlas Construction</b>
+            <span>May 2026 monthly close</span>
+            <em><i/> On track · 82%</em>
+          </div>
+          {[
+            [Upload, "01", "Collect", "49 documents", "Client portal + email + scan", "complete"],
+            [Sparkles, "02", "Understand", "96.2% confidence", "OCR + AI classification", "complete"],
+            [BookOpen, "03", "Produce", "1,248 entries", "Books + reconciliation", "active"],
+            [FileCheck2, "04", "Review", "3 exceptions", "Controls + approval", "waiting"],
+            [ShieldCheck, "05", "Comply", "G50 · 26 Jul", "Submit + evidence", "waiting"],
+          ].map(([Icon, n, title, metric, desc, status], index) => (
+            <article className={`map-step ${status}`} key={title as string}>
+              <div className="map-step-top"><span>{n as string}</span><i>{status === "complete" ? <Check size={11}/> : index + 1}</i></div>
+              <span className="map-icon"><Icon size={19}/></span>
+              <h3>{title as string}</h3>
+              <b>{metric as string}</b>
+              <p>{desc as string}</p>
+              {index < 4 && <ArrowRight className="map-arrow" size={15}/>}
+            </article>
+          ))}
+        </div>
+        <div className="platform-bento">
+          <article className="bento-large">
+            <div className="bento-copy"><span className="section-label">Firm command center</span><h3>See risk before it becomes urgency.</h3><p>Workload, deadlines, client dependencies and quality controls update in real time across every department.</p><button onClick={() => onOpen("app")}>Open operations dashboard <ArrowRight size={14}/></button></div>
+            <div className="workload-visual">
+              <div className="workload-top"><b>Team capacity</b><span>This week <ChevronDown size={11}/></span></div>
+              {[["Nadia A.","Accounting manager",92,"12 due"],["Amine B.","Senior accountant",74,"8 due"],["Lyna M.","Junior accountant",58,"5 due"],["Yacine K.","Tax consultant",81,"9 due"]].map(([name,job,value,due],i) => <div className="workload-row" key={name as string}><span className={`work-person wp-${i}`}>{(name as string).split(" ").map(x=>x[0]).join("")}</span><div><b>{name as string}</b><small>{job as string}</small></div><div className="work-bar"><span style={{width:`${value}%`}}/></div><em>{value as number}%</em><i>{due as string}</i></div>)}
+              <div className="capacity-note"><Sparkles size={14}/><span><b>Capacity available.</b> Lyna can absorb 4 of Nadia’s review tasks without moving an SLA.</span><button>Apply</button></div>
+            </div>
+          </article>
+          <article className="bento-small intelligence-bento"><span><Sparkles size={19}/></span><small>EVO INTELLIGENCE</small><h3>A firm that learns how your best people work.</h3><p>Suggest entries, detect filing risk, summarize financials and surface the next best action—with human approval built in.</p><div className="intelligence-pulse"><i/><i/><i/><i/><i/><i/><i/></div></article>
+          <article className="bento-small portal-bento"><span><MessageSquareText size={19}/></span><small>CLIENT PORTAL</small><h3>Your clients finally know what you need.</h3><p>Uploads, requests, approvals, signatures, reports and meetings in one beautifully simple portal.</p><div className="portal-request"><span><FileText size={15}/></span><div><b>May bank statement</b><small>Requested by Amine · Due today</small></div><button>Upload</button></div></article>
+        </div>
       </section>
 
       <section className="section" id="services">
         <div className="section-heading">
-          <div><span className="section-label">One firm. One system.</span><h2>Workflows that move at the speed of your expertise.</h2></div>
-          <p>Replace disconnected tools and status meetings with one shared operational truth—from first document to final signature.</p>
+          <div><span className="section-label">The complete platform</span><h2>Deep enough for specialists. Connected enough for everyone.</h2></div>
+          <p>Every module is purpose-built for accounting-firm operations, while sharing one company record, one workflow engine and one audit trail.</p>
         </div>
         <div className="feature-grid">
           {[
