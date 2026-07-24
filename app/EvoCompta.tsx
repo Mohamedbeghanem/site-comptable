@@ -407,7 +407,7 @@ function Login({ onOpen }: { onOpen: (view: View) => void }) {
   const [twoFactor, setTwoFactor] = useState(false);
   return (
     <main className="auth-shell">
-      <button className="auth-logo" onClick={() => onOpen("public")}><Logo /></button>
+      <div className="auth-logo" onClick={() => onOpen("public")}><Logo /></div>
       <div className="auth-aside">
         <div>
           <span className="section-label">One intelligent workspace</span>
