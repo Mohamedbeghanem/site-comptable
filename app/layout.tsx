@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: `${origin}/og-evocompta-green.png`,
+          url: `${origin}/og-evocompta-ecosystem.png`,
           width: 1200,
           height: 630,
           alt: "EVOCOMPTA — Accounting. Reimagined.",
@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: [`${origin}/og-evocompta-green.png`],
+      images: [`${origin}/og-evocompta-ecosystem.png`],
     },
   };
 }

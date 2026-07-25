@@ -47,6 +47,7 @@ import {
 import {
   motion,
   useInView,
+  useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
   useScroll,
@@ -188,83 +189,212 @@ function Navigation() {
 function Hero() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, 70]);
+  const heroRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const sceneX = useSpring(pointerX, { stiffness: 90, damping: 24 });
+  const sceneY = useSpring(pointerY, { stiffness: 90, damping: 24 });
+  const sceneRotateX = useTransform(sceneY, [-24, 24], [1.7, -1.7]);
+  const sceneRotateY = useTransform(sceneX, [-24, 24], [-2.2, 2.2]);
+  const backgroundX = useTransform(sceneX, [-24, 24], [-8, 8]);
+  const backgroundY = useTransform(sceneY, [-24, 24], [-6, 6]);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 88]);
   const portraitY = useSpring(heroY, { stiffness: 80, damping: 20 });
+
+  const moveScene = (event: React.PointerEvent<HTMLElement>) => {
+    if (reduce || event.pointerType === "touch") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    pointerX.set(((event.clientX - rect.left) / rect.width - 0.5) * 48);
+    pointerY.set(((event.clientY - rect.top) / rect.height - 0.5) * 48);
+  };
+
+  const resetScene = () => {
+    pointerX.set(0);
+    pointerY.set(0);
+  };
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (email) setSent(true);
   };
 
   return (
-    <section className="immersive-hero" id="top">
-      <div className="hero-grid-lines"/><div className="hero-noise"/><div className="hero-glow glow-a"/><div className="hero-glow glow-b"/>
-      <div className="world-dots"><i className="land l1"/><i className="land l2"/><i className="land l3"/><i className="land l4"/></div>
-      <div className="hero-particles">{Array.from({ length: 18 }).map((_, index) => <i key={index} style={{ "--i": index } as CSSProperties}/>)}</div>
+    <section
+      className="immersive-hero"
+      id="top"
+      ref={heroRef}
+      onPointerMove={moveScene}
+      onPointerLeave={resetScene}
+    >
+      <motion.div className="hero-grid-lines" style={{ x: backgroundX, y: backgroundY }}/>
+      <div className="hero-noise"/>
+      <div className="hero-glow glow-a"/><div className="hero-glow glow-b"/><div className="hero-glow glow-c"/>
+      <div className="hero-beams"><i/><i/><i/></div>
+      <motion.div className="world-dots" style={{ x: backgroundX, y: backgroundY }}>
+        <i className="land l1"/><i className="land l2"/><i className="land l3"/><i className="land l4"/>
+      </motion.div>
+      <div className="hero-particles">
+        {Array.from({ length: 26 }).map((_, index) => (
+          <i key={index} style={{ "--i": index } as CSSProperties}/>
+        ))}
+      </div>
+
       <div className="hero-inner">
         <motion.div
           className="hero-copy"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease }}
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+          }}
         >
-          <div className="hero-eyebrow"><span><Sparkles size={12}/> Financial intelligence, unified</span><i/>Trusted by modern accounting firms</div>
-          <h1>Accounting.<br/><span>Reimagined.</span></h1>
-          <p>One intelligent platform to run your firm, automate the routine, and turn every financial signal into a confident decision.</p>
-          <form className={`hero-form ${sent ? "success" : ""}`} onSubmit={submit}>
+          <motion.div className="hero-eyebrow" variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: .7, ease } } }}>
+            <span><Sparkles size={12}/> EVO INTELLIGENCE 2.0</span><i/>Financial operations, orchestrated
+          </motion.div>
+          <h1>
+            <motion.span className="headline-solid" variants={{ hidden: { opacity: 0, y: 54 }, visible: { opacity: 1, y: 0, transition: { duration: .9, ease } } }}>ACCOUNTING.</motion.span>
+            <motion.span className="headline-outline" variants={{ hidden: { opacity: 0, y: 54 }, visible: { opacity: 1, y: 0, transition: { duration: .9, ease } } }}>Reimagined.</motion.span>
+            <motion.em variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: .75, ease } } }}>for ambitious firms.</motion.em>
+          </h1>
+          <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: .75, ease } } }}>
+            The intelligent financial operating system that turns documents, deadlines, and decisions into one precise, automated flow.
+          </motion.p>
+          <motion.form
+            className={`hero-form ${sent ? "success" : ""}`}
+            onSubmit={submit}
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: .75, ease } } }}
+          >
             {sent ? (
               <span><CheckCircle2 size={18}/> Thank you. We’ll be in touch within one business day.</span>
             ) : (
               <>
-                <input aria-label="Work email" type="email" required placeholder="Enter your work email" value={email} onChange={(event) => setEmail(event.target.value)}/>
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: .98 }} type="submit">Request demo <ArrowRight size={15}/></motion.button>
+                <span className="email-prefix"><Building2 size={16}/></span>
+                <input aria-label="Work email" type="email" required placeholder="Work email address" value={email} onChange={(event) => setEmail(event.target.value)}/>
+                <motion.button whileHover={{ scale: 1.025, x: 2 }} whileTap={{ scale: .98 }} type="submit">
+                  Request a private demo <ArrowRight size={15}/>
+                </motion.button>
               </>
             )}
-          </form>
-          <div className="hero-trust">
-            <span><ShieldCheck size={14}/> Enterprise-grade security</span>
-            <span><BadgeCheck size={14}/> 14-day tailored onboarding</span>
-            <span><Headphones size={14}/> Dedicated implementation team</span>
-          </div>
+          </motion.form>
+          <motion.div className="hero-trust" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .7 } } }}>
+            <span><Check size={13}/> No credit card</span>
+            <span><CalendarClock size={13}/> 14-day guided trial</span>
+            <span><ShieldCheck size={13}/> ISO-ready security</span>
+          </motion.div>
+          <motion.div className="hero-client-proof" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .8 } } }}>
+            <small>TRUSTED IN PRODUCTION BY</small>
+            <div><b>ATRIUM</b><b>NEXORA</b><b>ORBITAL</b><b>WAVEFORM</b></div>
+          </motion.div>
         </motion.div>
 
-        <motion.div className="hero-visual" style={{ y: portraitY }}>
-          <div className="portrait-orbit orbit-1"/><div className="portrait-orbit orbit-2"/><div className="portrait-orbit orbit-3"/>
-          <div className="portrait-halo"/>
+        <motion.div
+          className="hero-visual"
+          style={{ y: portraitY, x: sceneX, rotateX: sceneRotateX, rotateY: sceneRotateY }}
+          initial={{ opacity: 0, scale: .96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, delay: .18, ease }}
+        >
+          <div className="ecosystem-disc">
+            <div className="portrait-orbit orbit-1"><i/><i/><i/></div>
+            <div className="portrait-orbit orbit-2"><i/><i/><i/></div>
+            <div className="portrait-orbit orbit-3"/>
+            <div className="portrait-halo"/>
+            <div className="portrait-floor"/>
+          </div>
+
+          <div className="financial-paths" aria-hidden="true">
+            <i className="path path-a"><span/></i>
+            <i className="path path-b"><span/></i>
+            <i className="path path-c"><span/></i>
+            <i className="path path-d"><span/></i>
+            <i className="path path-e"><span/></i>
+          </div>
+
           <motion.img
             src="/accountant-portrait.png"
-            alt="Senior financial advisor"
+            alt="Modern financial leader inside the EVOCOMPTA intelligence network"
             className="accountant-portrait"
-            initial={{ opacity: 0, scale: .96, y: 20 }}
+            initial={{ opacity: 0, scale: .94, y: 34 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: .2, ease }}
+            transition={{ duration: 1.35, delay: .28, ease }}
           />
-          <motion.div className="float-card revenue-widget" animate={{ y: [0, -10, 0], rotate: [-1.4, -.4, -1.4] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-            <div className="widget-head"><span><CircleDollarSign size={14}/> Monthly revenue</span><em>JUL 2026</em></div>
-            <strong>DZD 18.4M</strong><small><TrendingUp size={11}/> 12.8% vs last month</small><MiniChart/>
+
+          <div className="ceo-status">
+            <i/><span><small>EVOCOMPTA LIVE</small><b>247 companies monitored</b></span>
+          </div>
+
+          <motion.div className="float-card revenue-widget" animate={{ y: [0, -9, 0] }} transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}>
+            <div className="widget-head"><span><CircleDollarSign size={13}/> Revenue analytics</span><em>LIVE</em></div>
+            <strong>DZD <Counter value={18.4} decimals={1}/>M</strong>
+            <div className="revenue-delta"><small><TrendingUp size={11}/> +12.8%</small><span>Forecast accuracy 96%</span></div>
+            <MiniChart/>
           </motion.div>
-          <motion.div className="float-card vat-widget" animate={{ y: [0, 9, 0], rotate: [.9, 0, .9] }} transition={{ duration: 5.4, repeat: Infinity, ease: "easeInOut", delay: .6 }}>
-            <span className="widget-icon"><CalendarClock size={17}/></span>
-            <div><small>UPCOMING DEADLINE</small><b>VAT declaration</b><em>12 companies · 26 July</em></div>
+
+          <motion.div className="float-card intake-widget" animate={{ x: [0, 6, 0], y: [0, -4, 0] }} transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}>
+            <div className="scan-line"/>
+            <span className="document-sheet"><ReceiptText size={16}/><i/><i/><i/></span>
+            <div><small>DOCUMENT INTAKE</small><b>INV-20341.pdf</b><em><Upload size={10}/> Upload complete</em></div>
+            <CheckCircle2 size={15}/>
+          </motion.div>
+
+          <motion.div className="float-card ai-widget" animate={{ y: [0, -7, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: .4 }}>
+            <div className="ai-orb"><Sparkles size={15}/></div>
+            <div><small>EVO AI PROCESSING</small><b>Journal entry ready</b><p>3 accounts matched · 98.7%</p></div>
+            <span className="ai-pulse"><i/><i/><i/></span>
+          </motion.div>
+
+          <motion.div className="float-card vat-widget" animate={{ y: [0, 8, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: .8 }}>
+            <span className="widget-icon"><Landmark size={16}/></span>
+            <div><small>TAX COMPLIANCE</small><b>VAT declaration</b><em>12 companies ready</em></div>
             <i className="vat-ring"><span>82%</span></i>
           </motion.div>
-          <motion.div className="float-card ocr-widget" animate={{ x: [0, 7, 0], y: [0, -5, 0] }} transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}>
-            <div className="scan-line"/>
-            <span className="widget-icon"><FileScan size={17}/></span>
-            <div><small>AI DOCUMENT OCR</small><b>Invoice analyzed</b><em><Check size={10}/> 98.7% confidence</em></div>
+
+          <motion.div className="float-card insight-widget" animate={{ x: [0, -5, 0], y: [0, -6, 0] }} transition={{ duration: 6.4, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}>
+            <div className="insight-top"><span><Bot size={14}/> AI insight</span><small>NOW</small></div>
+            <p>Cash reserve will exceed the target by <b>DZD 2.1M</b> this quarter.</p>
+            <div><span>Confidence</span><i><em/></i><b>94%</b></div>
           </motion.div>
-          <motion.div className="float-card ai-widget" animate={{ y: [0, -8, 0] }} transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}>
-            <div className="ai-orb"><Sparkles size={15}/></div>
-            <div><small>EVO AI</small><b>3 risks detected</b><p>Review Atlas before Friday.</p></div>
-            <ArrowRight size={13}/>
-          </motion.div>
-          <motion.div className="activity-pill" animate={{ y: [0, 6, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}>
-            <span>NA</span><div><b>Nadia uploaded 14 documents</b><small>SPA Méditerranée · just now</small></div><CheckCircle2 size={15}/>
+
+          <motion.div className="reconciliation-pill" animate={{ y: [0, 6, 0] }} transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}>
+            <span><Landmark size={14}/></span>
+            <div><small>BANK RECONCILIATION</small><b>384 transactions matched</b></div>
+            <em><Check size={11}/> 100%</em>
           </motion.div>
         </motion.div>
       </div>
+
+      <div className="hero-process" aria-label="EVOCOMPTA automated financial workflow">
+        {[
+          [Upload, "Capture"],
+          [FileScan, "Understand"],
+          [BookOpenCheck, "Account"],
+          [Landmark, "Comply"],
+          [BarChart3, "Report"],
+          [TrendingUp, "Grow"],
+        ].map(([Icon, label], index) => {
+          const FlowIcon = Icon as typeof Upload;
+          return (
+            <div className="process-step" key={label as string}>
+              <span><FlowIcon size={15}/><i>{index + 1}</i></span>
+              <b>{label as string}</b>
+              {index < 5 && <em><i/></em>}
+            </div>
+          );
+        })}
+      </div>
+
       <div className="hero-bottom">
-        <span>Scroll to explore</span><i/><div><LockKeyhole size={13}/> Data encrypted at rest and in transit</div>
+        <span><i className="live-dot"/> System operational</span>
+        <i/>
+        <div><LockKeyhole size={13}/> AES-256 encrypted</div>
+        <div><Globe2 size={13}/> Multi-entity ready</div>
+        <div><Activity size={13}/> Real-time intelligence</div>
       </div>
     </section>
   );
