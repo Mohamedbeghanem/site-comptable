@@ -1,306 +1,606 @@
 "use client";
 
 import {
+  Activity,
   ArrowRight,
   BadgeCheck,
+  Banknote,
+  BarChart3,
+  Bell,
   BookOpenCheck,
-  BriefcaseBusiness,
+  Bot,
   Building2,
-  CalendarDays,
+  CalendarClock,
   Check,
   CheckCircle2,
   ChevronDown,
-  CircleHelp,
+  CircleDollarSign,
   Clock3,
-  Factory,
+  CloudUpload,
+  Command,
   FileCheck2,
-  HeartPulse,
+  FileScan,
+  Fingerprint,
+  Gauge,
+  Globe2,
+  Headphones,
   Landmark,
-  Mail,
-  MapPin,
+  Layers3,
+  LockKeyhole,
   Menu,
-  MessageCircle,
-  Phone,
+  MessageSquareText,
+  Network,
+  Play,
+  Plus,
   ReceiptText,
-  Scale,
+  Search,
   ShieldCheck,
   Sparkles,
+  Star,
   TrendingUp,
+  Upload,
   UsersRound,
+  WalletCards,
   X,
+  Zap,
 } from "lucide-react";
-import { useState } from "react";
+import {
+  motion,
+  useInView,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import {
+  CSSProperties,
+  FormEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-const services = [
-  {
-    number: "01",
-    icon: BookOpenCheck,
-    title: "Accounting & reporting",
-    text: "Reliable monthly accounts, financial statements and management reporting that turn numbers into clear decisions.",
-    items: ["Monthly bookkeeping", "Financial statements", "Management dashboards"],
-  },
-  {
-    number: "02",
-    icon: ShieldCheck,
-    title: "Tax & compliance",
-    text: "Proactive tax planning and fully evidenced declarations, with every deadline monitored by our specialists.",
-    items: ["VAT and G50", "Corporate tax", "Tax reviews and filings"],
-  },
-  {
-    number: "03",
-    icon: UsersRound,
-    title: "Payroll & social",
-    text: "Secure payroll operations from employee onboarding to payslips, CNAS, CASNOS and statutory declarations.",
-    items: ["Payroll processing", "CNAS and CASNOS", "Contracts and employee matters"],
-  },
-  {
-    number: "04",
-    icon: BriefcaseBusiness,
-    title: "Business advisory",
-    text: "Practical support for founders and leaders navigating growth, financing, restructuring and succession.",
-    items: ["Business plans", "Cash-flow advisory", "Performance improvement"],
-  },
-];
+const ease = [0.22, 1, 0.36, 1] as const;
 
-const industries = [
-  { icon: Building2, name: "Construction & property", text: "Project accounting, contract margins and cash-flow control." },
-  { icon: Factory, name: "Industry & distribution", text: "Inventory, cost accounting and operational performance." },
-  { icon: HeartPulse, name: "Healthcare", text: "Compliant structures and clear financial oversight for practices." },
-  { icon: Landmark, name: "Professional services", text: "Profitability, payroll and tax planning for growing firms." },
-];
-
-const insights = [
-  { category: "Tax guide", date: "18 July 2026", title: "What growing companies should prepare before the next G50 deadline", read: "6 min read" },
-  { category: "Business", date: "04 July 2026", title: "Seven cash-flow signals every managing director should watch monthly", read: "8 min read" },
-  { category: "Payroll", date: "21 June 2026", title: "CNAS and payroll controls: a practical checklist for employers", read: "5 min read" },
-];
-
-function Brand() {
+function Logo() {
   return (
-    <a className="site-brand" href="#top" aria-label="Evo Conseil home">
-      <span className="brand-monogram">E</span>
-      <span><b>EVO</b><small>CONSEIL</small></span>
+    <a className="evo-logo" href="#top" aria-label="EVOCOMPTA home">
+      <span className="logo-mark"><i/><i/><i/></span>
+      <b>EVO<span>COMPTA</span></b>
     </a>
   );
 }
 
-export function EvoCompta() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={reduce ? false : { opacity: 0, y: 32 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.8, delay, ease }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Counter({
+  value,
+  suffix = "",
+  decimals = 0,
+}: {
+  value: number;
+  suffix?: string;
+  decimals?: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const start = performance.now();
+    const duration = 1600;
+    let frame = 0;
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setDisplay(value * eased);
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [inView, value]);
+  return <span ref={ref}>{display.toFixed(decimals)}{suffix}</span>;
+}
+
+function MiniChart({ bars = false, tone = "green" }: { bars?: boolean; tone?: "green" | "white" }) {
+  if (bars) {
+    return (
+      <div className={`mini-bars ${tone}`}>
+        {[32, 48, 40, 68, 55, 77, 64, 89, 76, 96].map((height, index) => (
+          <i key={index} style={{ height: `${height}%`, animationDelay: `${index * 70}ms` }}/>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className={`mini-line ${tone}`}>
+      <span className="line-fill"/><i className="chart-point p1"/><i className="chart-point p2"/><i className="chart-point p3"/>
+    </div>
+  );
+}
+
+function DemoButton({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.a
+      href="#demo"
+      className={`demo-button ${className}`}
+      whileHover={{ y: -2, scale: 1.015 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+    >
+      {children}
+    </motion.a>
+  );
+}
+
+function Navigation() {
+  const [open, setOpen] = useState(false);
+  const [solid, setSolid] = useState(false);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (latest) => setSolid(latest > 36));
+  return (
+    <motion.header className={`landing-nav ${solid ? "solid" : ""}`}>
+      <div className="nav-inner">
+        <Logo/>
+        <nav className={open ? "nav-links open" : "nav-links"}>
+          {["Solutions", "Products", "Industries", "Pricing", "Resources", "About"].map((item, index) => (
+            <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setOpen(false)}>
+              {item}{index < 2 || item === "Resources" ? <ChevronDown size={12}/> : null}
+            </a>
+          ))}
+          <a className="mobile-login" href="#demo">Login</a>
+        </nav>
+        <div className="nav-actions">
+          <a className="login-link" href="#demo">Login</a>
+          <DemoButton className="nav-demo">Request demo <ArrowRight size={14}/></DemoButton>
+          <button className="nav-menu" aria-label="Toggle navigation" onClick={() => setOpen(!open)}>
+            {open ? <X size={20}/> : <Menu size={20}/>}
+          </button>
+        </div>
+      </div>
+    </motion.header>
+  );
+}
+
+function Hero() {
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, 70]);
+  const portraitY = useSpring(heroY, { stiffness: 80, damping: 20 });
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (email) setSent(true);
+  };
 
   return (
-    <main className="firm-site" id="top">
-      <div className="utility-bar">
-        <span><MapPin size={12}/> Algiers, Algeria</span>
-        <span>Independent accounting, tax and advisory firm</span>
-        <div><a href="tel:+213555123456"><Phone size={12}/> +213 (0) 555 12 34 56</a><a href="mailto:contact@evoconseil.dz"><Mail size={12}/> contact@evoconseil.dz</a></div>
+    <section className="immersive-hero" id="top">
+      <div className="hero-grid-lines"/><div className="hero-noise"/><div className="hero-glow glow-a"/><div className="hero-glow glow-b"/>
+      <div className="world-dots"><i className="land l1"/><i className="land l2"/><i className="land l3"/><i className="land l4"/></div>
+      <div className="hero-particles">{Array.from({ length: 18 }).map((_, index) => <i key={index} style={{ "--i": index } as CSSProperties}/>)}</div>
+      <div className="hero-inner">
+        <motion.div
+          className="hero-copy"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease }}
+        >
+          <div className="hero-eyebrow"><span><Sparkles size={12}/> Financial intelligence, unified</span><i/>Trusted by modern accounting firms</div>
+          <h1>Accounting.<br/><span>Reimagined.</span></h1>
+          <p>One intelligent platform to run your firm, automate the routine, and turn every financial signal into a confident decision.</p>
+          <form className={`hero-form ${sent ? "success" : ""}`} onSubmit={submit}>
+            {sent ? (
+              <span><CheckCircle2 size={18}/> Thank you. We’ll be in touch within one business day.</span>
+            ) : (
+              <>
+                <input aria-label="Work email" type="email" required placeholder="Enter your work email" value={email} onChange={(event) => setEmail(event.target.value)}/>
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: .98 }} type="submit">Request demo <ArrowRight size={15}/></motion.button>
+              </>
+            )}
+          </form>
+          <div className="hero-trust">
+            <span><ShieldCheck size={14}/> Enterprise-grade security</span>
+            <span><BadgeCheck size={14}/> 14-day tailored onboarding</span>
+            <span><Headphones size={14}/> Dedicated implementation team</span>
+          </div>
+        </motion.div>
+
+        <motion.div className="hero-visual" style={{ y: portraitY }}>
+          <div className="portrait-orbit orbit-1"/><div className="portrait-orbit orbit-2"/><div className="portrait-orbit orbit-3"/>
+          <div className="portrait-halo"/>
+          <motion.img
+            src="/accountant-portrait.png"
+            alt="Senior financial advisor"
+            className="accountant-portrait"
+            initial={{ opacity: 0, scale: .96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: .2, ease }}
+          />
+          <motion.div className="float-card revenue-widget" animate={{ y: [0, -10, 0], rotate: [-1.4, -.4, -1.4] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+            <div className="widget-head"><span><CircleDollarSign size={14}/> Monthly revenue</span><em>JUL 2026</em></div>
+            <strong>DZD 18.4M</strong><small><TrendingUp size={11}/> 12.8% vs last month</small><MiniChart/>
+          </motion.div>
+          <motion.div className="float-card vat-widget" animate={{ y: [0, 9, 0], rotate: [.9, 0, .9] }} transition={{ duration: 5.4, repeat: Infinity, ease: "easeInOut", delay: .6 }}>
+            <span className="widget-icon"><CalendarClock size={17}/></span>
+            <div><small>UPCOMING DEADLINE</small><b>VAT declaration</b><em>12 companies · 26 July</em></div>
+            <i className="vat-ring"><span>82%</span></i>
+          </motion.div>
+          <motion.div className="float-card ocr-widget" animate={{ x: [0, 7, 0], y: [0, -5, 0] }} transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}>
+            <div className="scan-line"/>
+            <span className="widget-icon"><FileScan size={17}/></span>
+            <div><small>AI DOCUMENT OCR</small><b>Invoice analyzed</b><em><Check size={10}/> 98.7% confidence</em></div>
+          </motion.div>
+          <motion.div className="float-card ai-widget" animate={{ y: [0, -8, 0] }} transition={{ duration: 5.8, repeat: Infinity, ease: "easeInOut", delay: 1.1 }}>
+            <div className="ai-orb"><Sparkles size={15}/></div>
+            <div><small>EVO AI</small><b>3 risks detected</b><p>Review Atlas before Friday.</p></div>
+            <ArrowRight size={13}/>
+          </motion.div>
+          <motion.div className="activity-pill" animate={{ y: [0, 6, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}>
+            <span>NA</span><div><b>Nadia uploaded 14 documents</b><small>SPA Méditerranée · just now</small></div><CheckCircle2 size={15}/>
+          </motion.div>
+        </motion.div>
       </div>
+      <div className="hero-bottom">
+        <span>Scroll to explore</span><i/><div><LockKeyhole size={13}/> Data encrypted at rest and in transit</div>
+      </div>
+    </section>
+  );
+}
 
-      <header className="site-header">
-        <Brand/>
-        <nav className={menuOpen ? "site-nav open" : "site-nav"}>
-          <a href="#expertise" onClick={() => setMenuOpen(false)}>Expertise <ChevronDown size={12}/></a>
-          <a href="#approach" onClick={() => setMenuOpen(false)}>Our approach</a>
-          <a href="#industries" onClick={() => setMenuOpen(false)}>Industries</a>
-          <a href="#insights" onClick={() => setMenuOpen(false)}>Insights</a>
-          <a href="#firm" onClick={() => setMenuOpen(false)}>The firm</a>
-          <a className="mobile-consult" href="#contact" onClick={() => setMenuOpen(false)}>Book a consultation</a>
-        </nav>
-        <a className="consult-button" href="#contact">Book a consultation <ArrowRight size={14}/></a>
-        <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
-      </header>
+const features = [
+  { icon: Zap, title: "Workflow automation", text: "Turn recurring work into controlled, self-moving workflows.", className: "feature-automation" },
+  { icon: FileScan, title: "Document OCR", text: "Extract, classify, and route financial documents in seconds.", className: "feature-ocr" },
+  { icon: Sparkles, title: "Evo Intelligence", text: "Surface risks, recommendations, and the next best action.", className: "feature-ai" },
+  { icon: BookOpenCheck, title: "Accounting", text: "From journals to closing, every company stays current.", className: "feature-accounting" },
+  { icon: WalletCards, title: "Payroll", text: "Controlled payroll runs, payslips, CNAS, and approvals.", className: "feature-payroll" },
+  { icon: Landmark, title: "Tax & compliance", text: "Plan, prepare, submit, and evidence every obligation.", className: "feature-tax" },
+  { icon: BarChart3, title: "Firm analytics", text: "See margin, capacity, quality, and growth in real time.", className: "feature-analytics" },
+  { icon: UsersRound, title: "Client CRM", text: "Every request, meeting, message, and promise in context.", className: "feature-crm" },
+];
 
-      <section className="public-hero">
-        <div className="hero-grain"/>
-        <div className="hero-content">
-          <div className="hero-intro">
-            <span className="hero-kicker"><i/> Chartered expertise. Practical counsel.</span>
-            <h1>Numbers tell the story.<br/><em>We help you shape it.</em></h1>
-            <p>Accounting, tax, payroll and strategic advice for ambitious businesses that want more than year-end compliance.</p>
-            <div className="public-actions">
-              <a className="public-button orange" href="#contact">Speak with an advisor <ArrowRight size={16}/></a>
-              <a className="public-button outline" href="#expertise">Discover our expertise</a>
+function TrustStrip() {
+  return (
+    <section className="trust-section">
+      <Reveal className="logo-cloud">
+        <span>Trusted by teams at</span>
+        <div className="logo-marquee"><div>{["NORTHSTAR", "FIDUCIA", "EXPERTA", "MAZARS", "ACCOUNTA", "ARCEN", "NORTHSTAR", "FIDUCIA", "EXPERTA"].map((logo, index) => <b key={`${logo}-${index}`}>{logo}</b>)}</div></div>
+      </Reveal>
+      <div className="stat-grid">
+        {[
+          [250, "+", "Accounting firms"],
+          [10000, "+", "Businesses managed"],
+          [99.9, "%", "Platform availability"],
+          [4.9, "/5", "Customer rating"],
+        ].map(([value, suffix, label], index) => (
+          <Reveal className="stat-item" delay={index * .08} key={label as string}>
+            <b><Counter value={value as number} suffix={suffix as string} decimals={value === 99.9 || value === 4.9 ? 1 : 0}/></b>
+            <span>{label as string}</span>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FeatureIllustration({ type }: { type: string }) {
+  if (type.includes("automation")) return <div className="flow-mini"><i/><span>Intake</span><i/><span>Review</span><i/><span>Done</span></div>;
+  if (type.includes("ocr")) return <div className="ocr-mini"><span>INV-2048</span><i/><b>98.7%</b><em>DZD 284,000</em></div>;
+  if (type.includes("ai")) return <div className="ai-mini"><Sparkles size={14}/><p>3 deadlines need attention.</p><span>Resolve with AI <ArrowRight size={10}/></span></div>;
+  if (type.includes("accounting")) return <div className="ledger-mini">{[72, 88, 54, 94].map((n, i) => <span key={i}><i style={{ width: `${n}%` }}/><em>{["512", "401", "445", "627"][i]}</em></span>)}</div>;
+  if (type.includes("payroll")) return <div className="people-mini">{["NA","KB","LY","YM"].map((n, i) => <span key={n} style={{ "--p": `${[91,76,84,63][i]}%` } as CSSProperties}>{n}</span>)}</div>;
+  if (type.includes("tax")) return <div className="tax-mini"><div><b>26</b><small>JUL</small></div><span>G50 filing<em>12 companies</em></span><CheckCircle2 size={15}/></div>;
+  if (type.includes("analytics")) return <div className="analytics-mini"><MiniChart bars/><span>+18.6%</span></div>;
+  return <div className="crm-mini"><span>KB</span><div><b>Karim B.</b><small>Uploaded 8 documents</small></div><i/></div>;
+}
+
+function Features() {
+  return (
+    <section className="features-section" id="solutions">
+      <Reveal className="section-heading">
+        <span className="section-kicker"><i/> One system. Every operation.</span>
+        <h2>Powerful alone.<br/><em>Transformative together.</em></h2>
+        <p>Purpose-built capabilities for every role in a modern accounting firm, connected by one intelligent operating layer.</p>
+      </Reveal>
+      <div className="feature-grid">
+        {features.map(({ icon: Icon, title, text, className }, index) => (
+          <motion.article
+            className={`feature-card ${className}`}
+            key={title}
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: .65, delay: (index % 4) * .08, ease }}
+            whileHover={{ y: -8, borderColor: "rgba(0,210,106,.35)" }}
+          >
+            <div className="feature-top"><span><Icon size={18}/></span><small>0{index + 1}</small></div>
+            <h3>{title}</h3><p>{text}</p>
+            <FeatureIllustration type={className}/>
+            <a href="#demo">Explore <ArrowRight size={12}/></a>
+          </motion.article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DashboardShowcase() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const frameY = useTransform(scrollYProgress, [0, .4, 1], [90, 0, -45]);
+  const frameScale = useTransform(scrollYProgress, [0, .35], [.94, 1]);
+  return (
+    <section className="showcase-section" id="products" ref={ref}>
+      <div className="showcase-copy">
+        <Reveal>
+          <span className="section-kicker"><i/> Live operational intelligence</span>
+          <h2>Your entire firm.<br/><em>One clear view.</em></h2>
+          <p>Know what is moving, what is blocked, and what needs human judgment—before anyone has to ask.</p>
+        </Reveal>
+        {[
+          ["01", "See the day", "Priority work, deadlines, client dependencies, and risk—ordered for action."],
+          ["02", "Control production", "Follow every company from document intake through close and submission."],
+          ["03", "Improve the firm", "Turn operational data into stronger margins, capacity, and client service."],
+        ].map(([number, title, text], index) => (
+          <motion.div className="showcase-step" key={number} initial={{ opacity: .35 }} whileInView={{ opacity: 1 }} viewport={{ margin: "-45% 0px -45% 0px" }}>
+            <span>{number}</span><div><b>{title}</b><p>{text}</p></div>{index === 0 && <i>LIVE</i>}
+          </motion.div>
+        ))}
+      </div>
+      <motion.div className="dashboard-shell" style={{ y: frameY, scale: frameScale }}>
+        <div className="dash-browser"><i/><i/><i/><span>app.evocompta.com/firm-overview</span><ShieldCheck size={11}/></div>
+        <div className="dash-app">
+          <aside className="dash-rail">
+            <Logo/>
+            {[Gauge, Activity, Building2, FileCheck2, BookOpenCheck, WalletCards, Landmark, UsersRound].map((Icon, index) => <span key={index} className={index === 0 ? "active" : ""}><Icon size={15}/>{index === 1 && <i>8</i>}</span>)}
+            <em>AB</em>
+          </aside>
+          <div className="dash-main">
+            <div className="dash-header">
+              <div><small>FRIDAY, 25 JULY</small><b>Good morning, Amine.</b></div>
+              <button><Search size={13}/> Search everything <kbd>⌘K</kbd></button>
+              <span><Bell size={14}/><i/></span>
             </div>
-            <div className="hero-assurance">
-              <span><BadgeCheck size={16}/> 14 years of expertise</span>
-              <span><ShieldCheck size={16}/> Confidential by design</span>
-              <span><Clock3 size={16}/> Responsive local team</span>
+            <div className="dash-content">
+              <div className="dash-title"><div><h3>Your firm at a glance</h3><p>42 assigned companies · July 2026</p></div><button><Plus size={13}/> New task</button></div>
+              <div className="dash-kpis">
+                {[
+                  [Clock3, "Due today", "24", "8 high priority"],
+                  [Gauge, "Portfolio health", "91%", "↑ 4.2% this month"],
+                  [MessageSquareText, "Waiting on clients", "17", "3 overdue"],
+                  [Banknote, "Value processed", "DZD 4.8M", "This month"],
+                ].map(([Icon, label, value, detail], index) => <div key={label as string}><span><Icon size={12}/>{label as string}</span><b>{value as string}</b><em className={index === 1 ? "positive" : ""}>{detail as string}</em>{index === 1 && <MiniChart/>}</div>)}
+              </div>
+              <div className="dash-layout">
+                <div className="dash-panel priority-panel">
+                  <div className="panel-title"><div><b>Priority queue</b><small>Ordered by deadline and risk</small></div><button>View all <ArrowRight size={10}/></button></div>
+                  {[
+                    ["Review May VAT declaration","SARL Atlas Construction","VAT","Today","AB"],
+                    ["Approve bank reconciliation","EURL Nova Digital","BANK","Today","NA"],
+                    ["Validate payroll control","SPA Méditerranée","PAYROLL","14:00","LM"],
+                    ["Classify purchase invoices","Cabinet Benali","DOCS","Tomorrow","YK"],
+                  ].map(([task, company, tag, due, owner], index) => <div className="dash-task" key={task}><span className={index === 0 ? "urgent" : ""}/><div><b>{task}</b><small>{company}</small></div><em>{tag}</em><i>{due}</i><strong>{owner}</strong></div>)}
+                </div>
+                <div className="dash-panel deadline-panel">
+                  <div className="panel-title"><div><b>Compliance radar</b><small>Next 7 days</small></div><ShieldCheck size={13}/></div>
+                  <div className="deadline-main"><span><b>26</b><small>JUL</small></span><div><b>G50 declarations</b><small>12 companies · 4 pending</small><i><em style={{width:"67%"}}/></i></div></div>
+                  <div className="risk-callout"><Sparkles size={13}/><p><b>3 filings at risk.</b><br/>Reassign 6 tasks to protect every deadline.</p><ArrowRight size={11}/></div>
+                </div>
+                <div className="dash-panel production-panel">
+                  <div className="panel-title"><div><b>Company production</b><small>July accounting period</small></div><button>248 companies <ChevronDown size={10}/></button></div>
+                  {[
+                    ["AT","SARL Atlas Construction","82%","VAT due"],
+                    ["ND","EURL Nova Digital","94%","On track"],
+                    ["ME","SPA Méditerranée","67%","Review"],
+                  ].map(([initials, company, progress, status]) => <div className="company-line" key={company}><span>{initials}</span><div><b>{company}</b><small>July 2026</small></div><i><em style={{width:progress}}/></i><strong>{progress}</strong><small className={status === "On track" ? "good" : ""}>{status}</small></div>)}
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+        <motion.div className="dash-floating insight-float" animate={{ y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}><Sparkles size={15}/><div><small>EVO INTELLIGENCE</small><b>Capacity risk resolved</b><span>6 tasks reassigned automatically</span></div><CheckCircle2 size={15}/></motion.div>
+      </motion.div>
+    </section>
+  );
+}
 
-          <div className="hero-ledger">
-            <div className="ledger-head">
-              <span>CLIENT PERSPECTIVE</span>
-              <em>2026 / 07</em>
-            </div>
-            <div className="ledger-title"><small>THE QUESTION WE ANSWER</small><h2>“What should we do next?”</h2></div>
-            <div className="ledger-rule"/>
-            <div className="ledger-grid">
-              <div><span>01</span><b>See clearly</b><p>Reliable financial information, delivered when it matters.</p></div>
-              <div><span>02</span><b>Plan early</b><p>Tax, payroll and cash-flow issues anticipated—not discovered late.</p></div>
-              <div><span>03</span><b>Act confidently</b><p>Direct access to advisors who understand your business.</p></div>
-            </div>
-            <div className="ledger-signoff"><span><CheckCircle2 size={15}/> Advice grounded in your numbers</span><b>EVO CONSEIL</b></div>
+function Workflow() {
+  const steps = [
+    { icon: Upload, title: "Upload documents", meta: "Portal · Email · Scan", metric: "49 received" },
+    { icon: FileScan, title: "AI OCR", meta: "Extract · Classify · Verify", metric: "98.7% confidence" },
+    { icon: BookOpenCheck, title: "Accounting entries", meta: "Suggest · Review · Post", metric: "1,248 entries" },
+    { icon: Landmark, title: "Tax processing", meta: "Validate · Approve · Submit", metric: "G50 ready" },
+    { icon: BarChart3, title: "Reports", meta: "Analyze · Generate · Share", metric: "Live insights" },
+    { icon: UsersRound, title: "Client portal", meta: "Approve · Sign · Collaborate", metric: "Delivered" },
+  ];
+  return (
+    <section className="workflow-section" id="industries">
+      <Reveal className="workflow-heading">
+        <span className="section-kicker"><i/> From inbox to insight</span>
+        <h2>One continuous flow.<br/><em>Zero operational gaps.</em></h2>
+        <p>EVOCOMPTA connects every handoff, automates every predictable step, and keeps judgment exactly where it belongs.</p>
+      </Reveal>
+      <div className="workflow-track">
+        <motion.div className="workflow-progress" initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true, margin: "-120px" }} transition={{ duration: 1.8, ease }}/>
+        {steps.map(({ icon: Icon, title, meta, metric }, index) => (
+          <motion.article key={title} initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .12, duration: .6, ease }}>
+            <div className="workflow-node"><span>0{index + 1}</span><i><Icon size={19}/></i>{index < steps.length - 1 && <ArrowRight size={13}/>}</div>
+            <h3>{title}</h3><p>{meta}</p><b>{metric}</b>
+          </motion.article>
+        ))}
+      </div>
+      <Reveal className="workflow-proof">
+        <div><Zap size={16}/><span><b>68%</b> less manual routing</span></div><i/>
+        <div><Clock3 size={16}/><span><b>31 hours</b> saved per accountant / month</span></div><i/>
+        <div><CheckCircle2 size={16}/><span><b>94%</b> first-pass acceptance</span></div>
+      </Reveal>
+    </section>
+  );
+}
+
+function AISection() {
+  return (
+    <section className="ai-section">
+      <div className="ai-section-glow"/><div className="ai-grid-bg"/>
+      <div className="ai-inner">
+        <Reveal className="ai-copy">
+          <span className="ai-badge"><Sparkles size={13}/> EVO INTELLIGENCE</span>
+          <h2>AI that understands<br/><em>accounting context.</em></h2>
+          <p>Not a generic chatbot. Evo Intelligence reads the documents, deadlines, transactions, and history behind every recommendation.</p>
+          <ul>
+            <li><CheckCircle2 size={15}/><span><b>Evidence-linked suggestions</b><small>Every answer shows its source and confidence.</small></span></li>
+            <li><CheckCircle2 size={15}/><span><b>Human approval by design</b><small>AI accelerates judgment. It never replaces accountability.</small></span></li>
+            <li><CheckCircle2 size={15}/><span><b>Firm-isolated intelligence</b><small>Your data never trains another firm’s experience.</small></span></li>
+          </ul>
+          <DemoButton>See Evo Intelligence <ArrowRight size={14}/></DemoButton>
+        </Reveal>
+        <Reveal className="ai-console" delay={.15}>
+          <div className="ai-console-top"><div><span><Sparkles size={14}/></span><b>Evo Intelligence</b><i>ONLINE</i></div><button><Plus size={14}/></button></div>
+          <div className="ai-chat">
+            <div className="chat-question"><span>AB</span><p>Which client deadlines are most at risk this week?</p></div>
+            <div className="chat-answer"><span><Sparkles size={14}/></span><div><p>I found <b>3 obligations at risk</b> based on missing documents, current workload, and filing history.</p><div className="risk-table">
+              <div><span className="risk high">HIGH</span><b>SARL Atlas · G50</b><small>12 documents missing</small><em>26 Jul</em></div>
+              <div><span className="risk med">MED</span><b>SPA Mériem · CNAS</b><small>Payroll review blocked</small><em>29 Jul</em></div>
+              <div><span className="risk med">MED</span><b>EURL Nova · IBS</b><small>Awaiting client approval</small><em>31 Jul</em></div>
+            </div><div className="ai-recommend"><Zap size={13}/><span><b>Recommended action</b><br/>Reassign 6 review tasks to Nadia. All three filings return to on-track status.</span><button>Apply plan</button></div></div></div>
           </div>
-        </div>
-        <div className="hero-fact fact-one"><small>CLIENT RETENTION</small><b>96%</b><span>Built on trust and responsiveness</span></div>
-        <div className="hero-fact fact-two"><small>COMPANIES ADVISED</small><b>420+</b><span>Across the Algerian economy</span></div>
-      </section>
+          <div className="ai-input"><button><Plus size={14}/></button><span>Ask about a client, deadline, or financial result…</span><kbd>⌘ ↵</kbd></div>
+          <motion.div className="ocr-float" animate={{ y: [0, -7, 0], rotate: [-1, -.4, -1] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}>
+            <div className="ocr-page"><span/><span/><span/><i/></div><div><small>INVOICE OCR</small><b>DZD 284,000</b><span><Check size={10}/> 98.7% verified</span></div>
+          </motion.div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 
-      <section className="credibility-band">
-        <span>Trusted financial counsel for</span>
-        <div><b>FOUNDERS</b><i/> <b>FAMILY BUSINESSES</b><i/> <b>SMEs</b><i/> <b>INTERNATIONAL GROUPS</b><i/> <b>PROFESSIONALS</b></div>
-      </section>
+function Testimonials() {
+  const testimonials = [
+    { quote: "EVOCOMPTA gave us a live operating picture of the firm. We stopped managing by status meeting and started managing by exception.", name: "Nadia Amrane", role: "CEO, Fiducia Partners", position: "left", logo: "FIDUCIA" },
+    { quote: "The combination of workflow control and accounting intelligence changed our close process. We gained speed without giving up review quality.", name: "Karim Bensaïd", role: "Managing Partner, Northstar", position: "center", logo: "NORTHSTAR" },
+    { quote: "Clients respond faster because every request is clear. Our team saves hours each week, and our service feels meaningfully more premium.", name: "Lina Rahmani", role: "Founder, Experta Conseil", position: "right", logo: "EXPERTA" },
+  ];
+  return (
+    <section className="testimonials-section" id="resources">
+      <Reveal className="section-heading testimonial-heading">
+        <span className="section-kicker"><i/> Trusted in the real world</span>
+        <h2>Built with firms.<br/><em>Proven by outcomes.</em></h2>
+      </Reveal>
+      <div className="testimonial-grid">
+        {testimonials.map((item, index) => (
+          <motion.article key={item.name} whileHover={{ y: -8 }} transition={{ type: "spring", stiffness: 260, damping: 22 }}>
+            <div className="testimonial-top"><b>{item.logo}</b><span>{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={12} fill="currentColor"/>)}</span></div>
+            <blockquote>“{item.quote}”</blockquote>
+            <div className="testimonial-person"><span className={`leader-photo ${item.position}`}/><div><b>{item.name}</b><small>{item.role}</small></div><BadgeCheck size={16}/></div>
+            <i>0{index + 1}</i>
+          </motion.article>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-      <section className="expertise-section" id="expertise">
-        <div className="section-intro">
-          <div><span className="section-tag">OUR EXPERTISE</span><h2>Serious expertise.<br/>Clear, human advice.</h2></div>
-          <p>We combine technical precision with commercial understanding. Every engagement is led by a senior advisor and shaped around the decisions your business actually faces.</p>
-        </div>
-        <div className="service-list">
-          {services.map(({ number, icon: Icon, title, text, items }) => (
-            <article className="service-row" key={title}>
-              <span className="service-number">{number}</span>
-              <span className="service-icon"><Icon size={22}/></span>
-              <div className="service-copy"><h3>{title}</h3><p>{text}</p></div>
-              <ul>{items.map((item) => <li key={item}><Check size={12}/>{item}</li>)}</ul>
-              <button aria-label={`Learn about ${title}`}><ArrowRight size={18}/></button>
-            </article>
-          ))}
-        </div>
-      </section>
+function Pricing() {
+  const plans = [
+    { name: "Essentials", price: "Tailored", text: "For growing practices replacing fragmented tools.", features: ["Firm workspace", "Companies & workflows", "Document management", "Client portal", "Core reporting"], cta: "Talk to sales" },
+    { name: "Professional", price: "Tailored", text: "For established firms automating production end to end.", features: ["Everything in Essentials", "Accounting production", "Payroll & tax operations", "Evo Intelligence", "Advanced analytics"], cta: "Request demo" },
+    { name: "Enterprise", price: "Custom", text: "For multi-office firms requiring control at scale.", features: ["Everything in Professional", "Custom roles & controls", "API & integrations", "Dedicated environment", "Priority implementation"], cta: "Contact enterprise", featured: true },
+  ];
+  return (
+    <section className="pricing-section" id="pricing">
+      <Reveal className="pricing-heading">
+        <span className="section-kicker"><i/> Built around your firm</span>
+        <h2>One platform.<br/><em>Configured to fit.</em></h2>
+        <p>Pricing reflects your firm size, services, and implementation needs. No seat-count surprises.</p>
+      </Reveal>
+      <div className="pricing-grid">
+        {plans.map((plan) => (
+          <motion.article className={plan.featured ? "featured" : ""} key={plan.name} whileHover={{ y: -7 }} transition={{ type: "spring", stiffness: 250, damping: 24 }}>
+            {plan.featured && <span className="popular"><Sparkles size={11}/> MOST POPULAR</span>}
+            <div className="plan-head"><span>{plan.name}</span>{plan.name === "Enterprise" ? <Network size={18}/> : plan.name === "Professional" ? <Layers3 size={18}/> : <Building2 size={18}/>}</div>
+            <b className="plan-price">{plan.price}</b><p>{plan.text}</p>
+            <div className="plan-line"/>
+            <small>INCLUDES</small>
+            <ul>{plan.features.map((feature) => <li key={feature}><Check size={12}/>{feature}</li>)}</ul>
+            <DemoButton className={plan.featured ? "plan-cta active" : "plan-cta"}>{plan.cta}<ArrowRight size={13}/></DemoButton>
+          </motion.article>
+        ))}
+      </div>
+      <p className="pricing-note"><ShieldCheck size={13}/> Every plan includes encrypted hosting, continuous backups, and guided onboarding.</p>
+    </section>
+  );
+}
 
-      <section className="statement-section" id="approach">
-        <div className="statement-number">14</div>
-        <div className="statement-copy">
-          <span className="section-tag light">OUR APPROACH</span>
-          <blockquote>Good accounting records the past.<br/><em>Great advice improves the future.</em></blockquote>
-          <p>We work close to your business throughout the year—not only when a filing is due. That means fewer surprises, faster answers and financial information you can actually use.</p>
-          <a href="#contact">How we work with clients <ArrowRight size={14}/></a>
-        </div>
-        <div className="statement-points">
-          {[
-            ["01", "A senior advisor stays accountable"],
-            ["02", "Monthly clarity, not annual surprises"],
-            ["03", "Advice in plain, direct language"],
-            ["04", "Technology supports—not replaces—judgment"],
-          ].map(([number, text]) => <div key={number}><span>{number}</span><p>{text}</p></div>)}
-        </div>
-      </section>
-
-      <section className="results-section">
-        <div className="results-heading"><span className="section-tag">MEASURABLE VALUE</span><h2>We judge our work by what improves.</h2></div>
-        <div className="results-grid">
-          <article className="result-feature">
-            <span>CLIENT STORY · DISTRIBUTION</span>
-            <h3>From uncertain cash flow to a controlled 18-month growth plan.</h3>
-            <p>We rebuilt monthly reporting, clarified product margins and introduced a rolling cash forecast for a growing family-owned distributor.</p>
-            <div><b>23%</b><span>improvement in working capital</span><b>11 days</b><span>faster monthly close</span></div>
-            <a href="#contact">Discuss a similar challenge <ArrowRight size={14}/></a>
-          </article>
-          <div className="result-metrics">
-            <div><b>420+</b><span>companies supported</span><small>From formation to regional scale</small></div>
-            <div><b>98.7%</b><span>filings delivered on time</span><small>Across tax and social obligations</small></div>
-            <div><b>4.9/5</b><span>average client rating</span><small>For clarity and responsiveness</small></div>
-            <div><b>72h</b><span>typical onboarding</span><small>With a structured handover plan</small></div>
-          </div>
-        </div>
-      </section>
-
-      <section className="industries-section" id="industries">
-        <div className="industries-head">
-          <div><span className="section-tag light">SECTOR KNOWLEDGE</span><h2>We understand the numbers behind your industry.</h2></div>
-          <p>Technical accounting is only useful when it reflects how your company earns, invests and grows.</p>
-        </div>
-        <div className="industries-grid">
-          {industries.map(({ icon: Icon, name, text }, index) => (
-            <article key={name}><span>0{index + 1}</span><Icon size={25}/><h3>{name}</h3><p>{text}</p><a href="#contact">View expertise <ArrowRight size={13}/></a></article>
-          ))}
-        </div>
-      </section>
-
-      <section className="firm-section" id="firm">
-        <div className="firm-portrait">
-          <div className="portrait-architecture"><span/><span/><span/><span/></div>
-          <div className="portrait-caption"><small>ALGIERS · SINCE 2012</small><b>Independent by choice.<br/>Invested in your success.</b></div>
-        </div>
-        <div className="firm-story">
-          <span className="section-tag">THE FIRM</span>
-          <h2>Close enough to know your business. Experienced enough to challenge it.</h2>
-          <p>Evo Conseil is an independent accounting and advisory firm serving businesses across Algeria. Our multidisciplinary team brings together accountants, tax advisors, payroll specialists and business consultants around one goal: helping clients make better decisions.</p>
-          <div className="firm-values">
-            <div><span>01</span><b>Clarity</b><p>No jargon. No vague answers.</p></div>
-            <div><span>02</span><b>Ownership</b><p>We stay accountable from question to outcome.</p></div>
-            <div><span>03</span><b>Foresight</b><p>We raise issues before they become problems.</p></div>
-          </div>
-          <a href="#contact">Meet our advisors <ArrowRight size={14}/></a>
-        </div>
-      </section>
-
-      <section className="insights-section" id="insights">
-        <div className="insights-head"><div><span className="section-tag">PERSPECTIVES</span><h2>Useful thinking for business leaders.</h2></div><a href="#insights">View all insights <ArrowRight size={14}/></a></div>
-        <div className="insight-grid">
-          {insights.map((insight, index) => (
-            <article key={insight.title}>
-              <div className={`insight-art art-${index}`}><span>{insight.category}</span>{index === 0 ? <ReceiptText size={41}/> : index === 1 ? <TrendingUp size={41}/> : <UsersRound size={41}/>}</div>
-              <div className="insight-meta"><span>{insight.category}</span><i/>{insight.date}</div>
-              <h3>{insight.title}</h3>
-              <div className="insight-foot"><span>{insight.read}</span><button><ArrowRight size={15}/></button></div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="contact-section" id="contact">
-        <div className="contact-copy">
-          <span className="section-tag light">START A CONVERSATION</span>
-          <h2>What would greater financial clarity change for your business?</h2>
-          <p>Tell us what you are working through. A senior advisor will respond within one business day.</p>
-          <div className="contact-details">
-            <a href="tel:+213555123456"><span><Phone size={17}/></span><div><small>CALL THE OFFICE</small><b>+213 (0) 555 12 34 56</b></div></a>
-            <a href="mailto:contact@evoconseil.dz"><span><Mail size={17}/></span><div><small>EMAIL US</small><b>contact@evoconseil.dz</b></div></a>
-            <div><span><MapPin size={17}/></span><div><small>VISIT US</small><b>12 Rue Didouche Mourad, Alger Centre</b></div></div>
-          </div>
-        </div>
-        <form className="contact-form" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
-          {submitted ? (
-            <div className="form-success"><span><CheckCircle2 size={29}/></span><h3>Thank you.</h3><p>Your message has been received. A senior advisor will contact you within one business day.</p><button type="button" onClick={() => setSubmitted(false)}>Send another message</button></div>
-          ) : (
-            <>
-              <div className="form-title"><span>PRIVATE & CONFIDENTIAL</span><b>Book an initial consultation</b></div>
-              <div className="form-row"><label>First name<input required placeholder="Your first name"/></label><label>Last name<input required placeholder="Your last name"/></label></div>
-              <label>Work email<input required type="email" placeholder="name@company.com"/></label>
-              <label>Company<input required placeholder="Company name"/></label>
-              <label>How can we help?<select defaultValue=""><option value="" disabled>Select an area</option><option>Accounting & reporting</option><option>Tax & compliance</option><option>Payroll & social</option><option>Business advisory</option><option>Company creation</option></select></label>
-              <label>Tell us a little more<textarea rows={4} placeholder="What would you like to discuss?"/></label>
-              <button className="submit-button" type="submit">Request consultation <ArrowRight size={15}/></button>
-              <small><ShieldCheck size={12}/> Your information is handled in strict confidence.</small>
-            </>
-          )}
+function FinalCTA() {
+  const [email, setEmail] = useState("");
+  const [done, setDone] = useState(false);
+  return (
+    <section className="final-cta" id="demo">
+      <div className="cta-rings"/><div className="cta-grid"/>
+      <Reveal>
+        <span><Sparkles size={13}/> YOUR NEXT OPERATING ADVANTAGE</span>
+        <h2>See what a truly<br/>intelligent firm feels like.</h2>
+        <p>Bring your workflows, deadlines, and growth goals. We’ll show you EVOCOMPTA around the way your firm actually works.</p>
+        <form onSubmit={(event) => { event.preventDefault(); if (email) setDone(true); }}>
+          {done ? <div className="cta-success"><CheckCircle2 size={18}/> Demo request received. We’ll contact you shortly.</div> : <><input type="email" required placeholder="Work email address" value={email} onChange={(event) => setEmail(event.target.value)}/><motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: .98 }}>Request your demo <ArrowRight size={15}/></motion.button></>}
         </form>
-      </section>
+        <small>No credit card · Tailored 30-minute walkthrough · Response within one business day</small>
+      </Reveal>
+    </section>
+  );
+}
 
-      <section className="faq-section">
-        <div><span className="section-tag">COMMON QUESTIONS</span><h2>A clear start.</h2><p>Still have a question? <a href="#contact">Speak with our team.</a></p></div>
-        <div className="faq-list">
-          {[
-            ["Who do you typically work with?", "We advise founders, family businesses, SMEs, international subsidiaries and independent professionals across Algeria."],
-            ["Can you take over from another accounting firm?", "Yes. We manage the full handover, review opening balances and provide a clear transition schedule."],
-            ["Do you offer ongoing advisory or only compliance?", "Both. Most clients combine accounting and compliance with monthly management reporting and direct advisory support."],
-            ["How quickly can we begin?", "A standard engagement can usually begin within 72 hours once scope, access and the handover plan are agreed."],
-          ].map(([question, answer]) => <details key={question}><summary><span>{question}</span><CircleHelp size={17}/></summary><p>{answer}</p></details>)}
-        </div>
-      </section>
+function Footer() {
+  return (
+    <footer className="landing-footer" id="about">
+      <div className="footer-main">
+        <div className="footer-brand"><Logo/><p>The intelligent operating system for modern accounting firms.</p><span><span className="status-dot"/> Systems operational</span></div>
+        <div><b>Platform</b><a href="#solutions">Solutions</a><a href="#products">Products</a><a href="#industries">Industries</a><a href="#pricing">Pricing</a></div>
+        <div><b>Company</b><a href="#about">About</a><a href="#resources">Customers</a><a href="#resources">Resources</a><a href="#demo">Contact</a></div>
+        <div><b>Trust</b><a href="#about">Security</a><a href="#about">Privacy</a><a href="#about">Compliance</a><a href="#about">Status</a></div>
+        <div><b>Connect</b><a href="#demo">LinkedIn</a><a href="#demo">X / Twitter</a><a href="#demo">support@evocompta.com</a></div>
+      </div>
+      <div className="footer-bottom"><span>© 2026 EVOCOMPTA. All rights reserved.</span><div><a>Privacy policy</a><a>Terms of service</a><a>Cookies</a></div><span>Made for firms that move forward.</span></div>
+    </footer>
+  );
+}
 
-      <footer className="site-footer">
-        <div className="footer-main">
-          <div className="footer-brand"><Brand/><p>Accounting, tax, payroll and business advice for companies building with confidence.</p><span><BadgeCheck size={14}/> Independent accounting and advisory firm</span></div>
-          <div><b>Expertise</b><a href="#expertise">Accounting & reporting</a><a href="#expertise">Tax & compliance</a><a href="#expertise">Payroll & social</a><a href="#expertise">Business advisory</a></div>
-          <div><b>Firm</b><a href="#firm">About us</a><a href="#industries">Industries</a><a href="#insights">Insights</a><a href="#contact">Careers</a></div>
-          <div><b>Contact</b><a href="tel:+213555123456">+213 (0) 555 12 34 56</a><a href="mailto:contact@evoconseil.dz">contact@evoconseil.dz</a><p>12 Rue Didouche Mourad<br/>Alger Centre, Algeria</p></div>
-        </div>
-        <div className="footer-bottom"><span>© 2026 Evo Conseil. All rights reserved.</span><div><a>Privacy</a><a>Terms</a><a>Professional standards</a></div><span>FR <i/> EN</span></div>
-      </footer>
+export function EvoCompta() {
+  return (
+    <main className="evocompta-landing">
+      <Navigation/>
+      <Hero/>
+      <TrustStrip/>
+      <Features/>
+      <DashboardShowcase/>
+      <Workflow/>
+      <AISection/>
+      <Testimonials/>
+      <Pricing/>
+      <FinalCTA/>
+      <Footer/>
     </main>
   );
 }
