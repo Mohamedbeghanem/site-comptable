@@ -255,15 +255,15 @@ function Hero() {
           }}
         >
           <motion.div className="hero-eyebrow" variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: .7, ease } } }}>
-            <span><Sparkles size={12}/> EVO INTELLIGENCE 2.0</span><i/>Financial operations, orchestrated
+            <span><Sparkles size={12}/> EVO INTELLIGENCE</span><i/>Accounting operations, orchestrated
           </motion.div>
           <h1>
-            <motion.span className="headline-solid" variants={{ hidden: { opacity: 0, y: 54 }, visible: { opacity: 1, y: 0, transition: { duration: .9, ease } } }}>ACCOUNTING.</motion.span>
+            <motion.span className="headline-solid" variants={{ hidden: { opacity: 0, y: 54 }, visible: { opacity: 1, y: 0, transition: { duration: .9, ease } } }}>Accounting.</motion.span>
             <motion.span className="headline-outline" variants={{ hidden: { opacity: 0, y: 54 }, visible: { opacity: 1, y: 0, transition: { duration: .9, ease } } }}>Reimagined.</motion.span>
-            <motion.em variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: .75, ease } } }}>for ambitious firms.</motion.em>
+            <motion.em variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: .75, ease } } }}>for firms built to lead.</motion.em>
           </h1>
           <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: .75, ease } } }}>
-            The intelligent financial operating system that turns documents, deadlines, and decisions into one precise, automated flow.
+            Move from scattered documents and deadlines to one intelligent, automated financial operation.
           </motion.p>
           <motion.form
             className={`hero-form ${sent ? "success" : ""}`}
@@ -277,7 +277,7 @@ function Hero() {
                 <span className="email-prefix"><Building2 size={16}/></span>
                 <input aria-label="Work email" type="email" required placeholder="Work email address" value={email} onChange={(event) => setEmail(event.target.value)}/>
                 <motion.button whileHover={{ scale: 1.025, x: 2 }} whileTap={{ scale: .98 }} type="submit">
-                  Request a private demo <ArrowRight size={15}/>
+                  Book a private demo <ArrowRight size={15}/>
                 </motion.button>
               </>
             )}
@@ -285,11 +285,11 @@ function Hero() {
           <motion.div className="hero-trust" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .7 } } }}>
             <span><Check size={13}/> No credit card</span>
             <span><CalendarClock size={13}/> 14-day guided trial</span>
-            <span><ShieldCheck size={13}/> ISO-ready security</span>
+            <span><ShieldCheck size={13}/> Enterprise security</span>
           </motion.div>
           <motion.div className="hero-client-proof" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: .8 } } }}>
-            <small>TRUSTED IN PRODUCTION BY</small>
-            <div><b>ATRIUM</b><b>NEXORA</b><b>ORBITAL</b><b>WAVEFORM</b></div>
+            <small>BUILT FOR MODERN</small>
+            <div><b>ACCOUNTING FIRMS</b><b>TAX TEAMS</b><b>PAYROLL</b><b>ADVISORY</b></div>
           </motion.div>
         </motion.div>
 
@@ -361,11 +361,6 @@ function Hero() {
             <div><span>Confidence</span><i><em/></i><b>94%</b></div>
           </motion.div>
 
-          <motion.div className="reconciliation-pill" animate={{ y: [0, 6, 0] }} transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}>
-            <span><Landmark size={14}/></span>
-            <div><small>BANK RECONCILIATION</small><b>384 transactions matched</b></div>
-            <em><Check size={11}/> 100%</em>
-          </motion.div>
         </motion.div>
       </div>
 
